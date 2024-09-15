@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .radio-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .radio-group input {
+            margin-right: 5px;
+        }
+        .radio-group label {
+            margin: 0;
+        }
+        .submit-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .submit-button:hover {
+            background-color: #0056b3;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sentiment Analysis</h1>
+        <form id="analysis-form">
+            <label for="text">Enter your text:</label>
+            <textarea id="text" name="text" rows="6" cols="50"></textarea>
+
+            <label>Select Model:</label>
+            <div class="radio-group">
+                <div>
+                    <input type="radio" id="lstm" name="model" value="lstm" checked>
+                    <label for="lstm">LSTM</label>
+                </div>
+                <div>
+                    <input type="radio" id="nb" name="model" value="nb">
+                    <label for="nb">Naive Bayes</label>
+                </div>
+            </div>
+            
+            <button type="submit" class="submit-button">Analyze</button>
+        </form>
+
+        <!-- Div for displaying the output -->
+        <div id="output"></div>
+    </div>
+
+    <script>
+        document.getElementById('analysis-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form from submitting the traditional way
+
+            const formData = new FormData(this);
+            const text = formData.get('text');
+            const model = formData.get('model');
+
+            // Send the data to the server using Fetch API
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const outputDiv = document.getElementById('output');
+                if (data.sentiment) {
+                    outputDiv.textContent = `Sentiment: ${data.sentiment}`;
+                    outputDiv.style.display = 'block';
+                } else if (data.error) {
+                    outputDiv.textContent = `Error: ${data.error}`;
+                    outputDiv.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                const outputDiv = document.getElementById('output');
+                outputDiv.textContent = `Error: ${error}`;
+                outputDiv.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
